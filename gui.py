@@ -22,13 +22,14 @@ class MplCanvas(FigureCanvas):
 		super(MplCanvas, self).__init__(fig)
 		fig.tight_layout()
 
-class PyShine_LIVE_PLOT_APP(QtWidgets.QMainWindow):
+class Alias_Effect_APP(QtWidgets.QMainWindow):
 	def __init__(self):
 		QtWidgets.QMainWindow.__init__(self)
 		self.ui = uic.loadUi('main.ui',self)
 		self.resize(888, 600)
 		icon = QtGui.QIcon()
 		self.setWindowIcon(icon)
+		self.UiComponents()
 		self.threadpool = QtCore.QThreadPool()	
 		self.devices_list= []
 		for device in range(0,len(input_audio_deviceInfos)):
@@ -66,6 +67,9 @@ class PyShine_LIVE_PLOT_APP(QtWidgets.QMainWindow):
 		self.pushButton_4.clicked.connect(self.aaOff)
 
 		self.start_worker()
+
+	def UiComponents(self):
+		self.showFullScreen()
 		
 	def resetPlotData(self):
 		if self.aa:
@@ -234,6 +238,6 @@ class Worker(QtCore.QRunnable):
 
 
 app = QtWidgets.QApplication(sys.argv)
-mainWindow = PyShine_LIVE_PLOT_APP()
+mainWindow = Alias_Effect_APP()
 mainWindow.show()
 sys.exit(app.exec_())

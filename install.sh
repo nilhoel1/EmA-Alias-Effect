@@ -14,13 +14,12 @@ touch alias.desktop
 echo "[Desktop Entry]" > alias.desktop
 echo "Type=Application" >> alias.desktop
 echo "Name=Alias" >> alias.desktop
-echo "Exec=/home/pi/EmA-Alias-Effect/start.sh" >> alias.desktop
+echo "Exec=/bin/sh /home/pi/EmA-Alias-Effect/start.sh" >> alias.desktop
 
 #ask for audio device
 python3 -m sounddevice
 echo "Pleas input the number of the AudioDevice you want to use:"
 read input
-echo input
 
 #create start.sh
 touch start.sh

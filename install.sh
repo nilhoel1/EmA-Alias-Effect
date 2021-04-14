@@ -6,6 +6,7 @@ pip3 install sounddevice matplotlib
 pip3 install -U numpy
 
 #get Repository
+cd /home/pi
 git clone https://github.com/nilhoel1/EmA-Alias-Effect.git
 cd EmA-Alias-Effect
 

@@ -7,11 +7,17 @@ import matplotlib.ticker as ticker
 import queue
 import numpy as np
 import sounddevice as sd
+import argparse
 
 from PyQt5 import QtCore, QtWidgets,QtGui
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtMultimedia import QAudioDeviceInfo,QAudio,QCameraInfo
+
+parser = argparse.ArgumentParser(description='Start the Alias gui.')
+parser.add_argument('deviceNumber', metavar='N', type=int,
+                    help='Specify the sounddevice to use.')
+args = parser.parse_args()
 
 input_audio_deviceInfos = sd.query_devices()#QAudioDeviceInfo.availableDevices(QAudio.AudioInput)
 
@@ -40,7 +46,7 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		self.reference_plot = None
 		self.q = queue.Queue(maxsize=20)
 
-		self.device = 6 
+		self.device = args.deviceNumber
 		self.window_length = 1000
 		self.downsample = 1
 		self.channels = [1]

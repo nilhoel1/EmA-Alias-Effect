@@ -73,8 +73,6 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		self.pushButton_3.clicked.connect(self.aaOn)
 		self.pushButton_4.clicked.connect(self.aaOff)
 
-		self.first = True
-
 		self.start_worker()
 
 	def UiComponents(self):
@@ -92,17 +90,12 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		if self.aa:
 			try:
 				def audio_callback(indata,outdata,frames,time,status):
-					if self.first: 
-						print(indata)
 					divider = 32
 					for i in range(indata.size):
 						if i%divider == 0:
 							current = indata[i]
 						else:
 							indata[i] = current
-						if self.first:
-							print(indata)
-							self.first =False
 					outdata[:] = indata
 					self.q.put(indata[::self.downsample,[0]])
 
@@ -124,7 +117,7 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 
 	def start_worker(self):
 		self.worker = Worker(self.start_stream, )
-		self.threadpool.start(self.worker)	
+		self.threadpool.start(self.worker)
 
 	def start_stream(self):
 		self.pushButton.setEnabled(False)

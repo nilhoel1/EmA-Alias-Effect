@@ -56,6 +56,7 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		
 		self.device_info =  sd.query_devices(self.device, 'input')
 		self.samplerate = self.device_info['default_samplerate']
+		print(self.samplerate)
 		self.aaSamplerate = 1000
 		self.length  = int(self.window_length*self.samplerate/(1000*self.downsample))
 		sd.default.samplerate = self.samplerate
@@ -71,6 +72,8 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		self.pushButton_2.clicked.connect(self.stop)
 		self.pushButton_3.clicked.connect(self.aaOn)
 		self.pushButton_4.clicked.connect(self.aaOff)
+
+		self.first = True
 
 		self.start_worker()
 
@@ -89,9 +92,21 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		if self.aa:
 			try:
 				def audio_callback(indata,outdata,frames,time,status):
+					if self.first: 
+						print(indata)
+					divider = 32
+					for i in range(indata.size):
+						if i%divider == 0:
+							current = indata[i]
+						else:
+							indata[i] = current
+						if self.first:
+							print(indata)
+							self.first =False
 					outdata[:] = indata
 					self.q.put(indata[::self.downsample,[0]])
-				self.stream  = sd.Stream( device = (self.device, self.device), channels = max(self.channels), samplerate =self.aaSamplerate, callback  = audio_callback)
+
+				self.stream  = sd.Stream( device = (self.device, self.device), channels = max(self.channels), samplerate =self.samplerate, callback  = audio_callback)
 				with self.stream:
 					input()
 			except Exception as e:

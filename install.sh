@@ -19,15 +19,21 @@ echo "Exec=/bin/sh /home/pi/EmA-Alias-Effect/start.sh" >> alias.desktop
 
 #ask for audio device
 python3 -m sounddevice
-echo "Pleas input the number of the AudioDevice you want to use:"
+echo "Pleas input the number of the Default AudioDevice of the System:"
 read input
 
 #create start.sh
 touch start.sh
-echo "#!/bin/sh!" > start.sh
+echo "#!/bin/sh" > start.sh
 echo "cd /home/pi/EmA-Alias-Effect/" >> start.sh
 echo python3 gui.py $input >> start.sh
 
 #move file to autostart
 mkdir /home/pi/.config/autostart
 mv alias.desktop /home/pi/.config/autostart
+
+#installing audio tweaks for debian
+echo "Insalling sound tweaks for stability"
+wget https://github.com/dynobot/Linux-Audio-Adjustments/raw/master/basic-install.sh
+chmod 755 basic-install.sh
+sudo ./basic-install.sh

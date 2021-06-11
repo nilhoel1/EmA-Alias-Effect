@@ -6,6 +6,7 @@ pip3 install sounddevice matplotlib
 pip3 install -U numpy
 LLVM_CONFIG=llvm-config-9 pip3 install llvmlite
 pip3 install numba
+pip3 install colorama==0.3.9
 
 #get Repository
 cd /home/pi

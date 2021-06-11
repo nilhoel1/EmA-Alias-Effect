@@ -5,6 +5,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.ticker as ticker
 import queue
+from numba import jit
 import numpy as np
 import sounddevice as sd
 import argparse
@@ -83,19 +84,27 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 			self.length  = int(self.window_length*self.samplerate/(1000*self.downsample))
 			self.plotdata = np.resize(self.plotdata, (self.length,len(self.channels)))
 	
+
+
+		
 	def getAudio(self):
+		@jit(nopython=True)
+		def aaGen(data):
+			divider = 32
+			for i in range(data.size):
+				if i%divider == 0:
+					current = data[i]
+				else:
+					data[i] = current
+			return data
 		try:
 			def audio_callback(indata,outdata,frames,time,status):
 				if self.aa:
-					divider = 32
-					for i in range(indata.size):
-						if i%divider == 0:
-							current = indata[i]
-						else:
-							indata[i] = current
-				outdata[:] = indata
+					outdata = aaGen(indata)
+				else:
+					outdata[:] = indata
 				self.q.put(outdata[::self.downsample,[0]])
-			self.stream  = sd.Stream( device = (self.device, self.device), blocksize=256, channels = max(self.channels), dtype = 'float32', latency = 'low' , samplerate =self.samplerate, callback  = audio_callback)
+			self.stream  = sd.Stream( device = (self.device, self.device), blocksize=0, channels = max(self.channels), dtype = 'float32', latency = 'hihg' , samplerate =self.samplerate, callback  = audio_callback)
 			with self.stream:
 				input()
 		except Exception as e:

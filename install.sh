@@ -1,9 +1,11 @@
 #!/bin/sh
 
 #installing dependencies
-sudo apt install -y libportaudio2 libatlas-base-dev python3-qtpy
+sudo apt install -y libportaudio2 libatlas-base-dev python3-qtpy llvm-9
 pip3 install sounddevice matplotlib
 pip3 install -U numpy
+LLVM_CONFIG=llvm-config-9 pip3 install llvmlite
+pip3 install numba
 
 #get Repository
 cd /home/pi

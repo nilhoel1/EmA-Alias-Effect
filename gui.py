@@ -95,7 +95,7 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 							indata[i] = current
 				outdata[:] = indata
 				self.q.put(outdata[::self.downsample,[0]])
-			self.stream  = sd.Stream( device = (self.device, self.device), channels = max(self.channels), samplerate =self.samplerate, callback  = audio_callback)
+			self.stream  = sd.Stream( device = (self.device, self.device), blocksize=256, channels = max(self.channels), dtype = 'float32', latency = 'low' , samplerate =self.samplerate, callback  = audio_callback)
 			with self.stream:
 				input()
 		except Exception as e:

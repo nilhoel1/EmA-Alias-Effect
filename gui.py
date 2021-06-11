@@ -51,7 +51,7 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		self.downsample = 1
 		self.channels = [1]
 		self.interval = 30
-		self.aa = False
+		self.aa = True
 		self.killThread = False
 		
 		self.device_info =  sd.query_devices(self.device, 'input')
@@ -87,7 +87,7 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 			self.plotdata = np.resize(self.plotdata, (self.length,len(self.channels)))
 	
 	def getAudio(self):
-		if self.aa:
+		if False:
 			try:
 				def audio_callback(indata,outdata,frames,time,status):
 					divider = 32
@@ -97,7 +97,7 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 						else:
 							indata[i] = current
 					outdata[:] = indata
-					self.q.put(indata[::self.downsample,[0]])
+					self.q.put(outdata[::self.downsample,[0]])
 
 				self.stream  = sd.Stream( device = (self.device, self.device), channels = max(self.channels), samplerate =self.samplerate, callback  = audio_callback)
 				with self.stream:
@@ -107,8 +107,15 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		else:
 			try:
 				def audio_callback(indata,outdata,frames,time,status):
+					if self.aa:
+						divider = 32
+						for i in range(indata.size):
+							if i%divider == 0:
+								current = indata[i]
+							else:
+								indata[i] = current
 					outdata[:] = indata
-					self.q.put(indata[::self.downsample,[0]])
+					self.q.put(outdata[::self.downsample,[0]])
 				self.stream  = sd.Stream( device = (self.device, self.device), channels = max(self.channels), samplerate =self.samplerate, callback  = audio_callback)
 				with self.stream:
 					input()
@@ -125,15 +132,15 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		self.pushButton_3.setEnabled(False)
 		self.pushButton_4.setEnabled(False)
 		self.getAudio()
-		if self.killThread:
-			self.worker.exit()
+	#	if self.killThread:
+	#		self.worker.exit()
 
 	def start(self):
 		self.pushButton.setEnabled(False)
 		self.pushButton_2.setEnabled(True)
 		self.pushButton_3.setEnabled(False)
 		self.pushButton_4.setEnabled(False)
-		self.stream.start()
+		#self.stream.start()
 
 	def stop(self):
 		self.pushButton.setEnabled(True)
@@ -142,7 +149,7 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 			self.pushButton_3.setEnabled(True)
 		else:
 			self.pushButton_4.setEnabled(True)
-		self.stream.stop()
+		#self.stream.stop()
 
 	def aaOn(self):
 		if self.aa:
@@ -152,10 +159,10 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		self.checkBox.setChecked(True)
 		self.killThread = True
 		self.aa = True
-		self.stream.close()
-		#self.resetPlotData()
+		#self.stream.close()
+		#self.resetPlotData()self.aa
 		self.update_plot()
-		self.threadpool.start(self.worker)
+		#self.threadpool.start(self.worker)
 
 	def aaOff(self):
 		if not self.aa:
@@ -165,10 +172,10 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		self.checkBox.setChecked(False)
 		self.killThread = True
 		self.aa = False
-		self.stream.close()
+		#self.stream.close()
 		#self.resetPlotData()
 		self.update_plot()
-		self.threadpool.start(self.worker)
+		#self.threadpool.start(self.worker)
 		
 	def update_now(self,value):
 		self.device = self.devices_list.index(value)

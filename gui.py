@@ -93,7 +93,7 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 	def getAudio(self):
 		@jit(nopython=True)
 		def aaGen(data):
-			divider = 32
+			divider = 16
 			for i in range(data.size):
 				if i%divider == 0:
 					current = data[i]
@@ -103,12 +103,14 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		aaGen(np.zeros(10))
 		try:
 			def audio_callback(indata,outdata,frames,time,status):
-				if self.aa:
+				if self.aa and self.normal:
 					outdata[:] = aaGen(indata)
 					self.q.put(outdata[::self.downsample,[0]])
 				elif self.normal:
 					outdata[:] = indata
 					self.q.put(outdata[::self.downsample,[0]])
+				else:
+					self.normal = True
 			self.stream  = sd.Stream( device = (self.device, self.device), blocksize=0, channels = max(self.channels), dtype = 'float32', latency = 'high' , samplerate =self.samplerate, callback  = audio_callback, never_drop_input=False)
 			with self.stream:
 				input()

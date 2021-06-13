@@ -54,10 +54,12 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		self.interval = 30
 		self.aa = False
 		self.killThread = False
+		self.normal = True
 		
 		self.device_info =  sd.query_devices(self.device, 'input')
 		self.samplerate = self.device_info['default_samplerate']
 		print(self.samplerate)
+		self.samplerate = 16000.0
 		self.aaSamplerate = 1000
 		self.length  = int(self.window_length*self.samplerate/(1000*self.downsample))
 		sd.default.samplerate = self.samplerate
@@ -70,6 +72,7 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 		self.timer.timeout.connect(self.update_plot)
 		self.timer.start()
 		self.pushButton_3.clicked.connect(self.aaOn)
+		self.pushButton.clicked.connect(self.removeLatency)
 
 		self.start_worker()
 
@@ -102,9 +105,10 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 			def audio_callback(indata,outdata,frames,time,status):
 				if self.aa:
 					outdata[:] = aaGen(indata)
-				else:
+					self.q.put(outdata[::self.downsample,[0]])
+				elif self.normal:
 					outdata[:] = indata
-				self.q.put(outdata[::self.downsample,[0]])
+					self.q.put(outdata[::self.downsample,[0]])
 			self.stream  = sd.Stream( device = (self.device, self.device), blocksize=0, channels = max(self.channels), dtype = 'float32', latency = 'high' , samplerate =self.samplerate, callback  = audio_callback, never_drop_input=False)
 			with self.stream:
 				input()
@@ -135,6 +139,9 @@ class Alias_Effect_APP(QtWidgets.QMainWindow):
 			self.killThread = True
 			self.aa = False
 			self.update_plot()
+	
+	def removeLatency(self):
+		self.normal = False
 		
 	def update_now(self,value):
 		self.device = self.devices_list.index(value)
